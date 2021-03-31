@@ -9,7 +9,11 @@ import (
 func TestTestData(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			require.Error(t, c.function())
+			if c.success {
+				require.NoError(t, c.function())
+			} else {
+				require.Error(t, c.function())
+			}
 		})
 	}
 }
@@ -28,7 +32,6 @@ var cases = []struct {
 	{Fail_UnmarshalMap_Copy, "Fail_UnmarshalMap_Copy", false},
 	{Pass_UnmarshalMap_CopyAddressOperator, "Pass_UnmarshalMap_CopyAddressOperator", true},
 	{Pass_UnmarshalMap_CreatePointer, "Pass_UnmarshalMap_CreatePointer", true},
-	{Pass_UnmarshalMap_TypeAlias, "Pass_UnmarshalMap_TypeAlias", true},
 	{Fail_UnmarshalMap_TypeAlias, "Fail_UnmarshalMap_TypeAlias", false},
 	{Pass_UnmarshalMap_AddressOfTypeAlias, "Pass_UnmarshalMap_AddressOfTypeAlias", true},
 	{Pass_UnmarshalMap_PtrTypeAlias, "Pass_UnmarshalMap_PtrTypeAlias", true},
@@ -39,4 +42,5 @@ var cases = []struct {
 	{Pass_UnmarshalMap_Parens, "Pass_UnmarshalMap_Parens", true},
 	{Pass_UnmarshalMap_FancyDst, "Pass_UnmarshalMap_FancyDst", true},
 	{Fail_UnmarshalMap_FancyDst, "Fail_UnmarshalMap_FancyDst", false},
+	{Fail_UnmarshalMap_Indirect, "Fail_UnmarshalMap_Indirect", false},
 }

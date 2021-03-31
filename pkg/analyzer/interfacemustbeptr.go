@@ -38,6 +38,14 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	isPointer := func(t types.Type) bool {
 		return t.String()[0] == '*'
 	}
+	scope2Node := func(target *types.Scope) ast.Node {
+		for node, scope := range pass.TypesInfo.Scopes {
+			if scope == target {
+				return node
+			}
+		}
+		return nil
+	}
 
 	inspect := func(node ast.Node, push bool, stack []ast.Node) bool {
 		if node == nil {
@@ -47,7 +55,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return true
 		}
 
-		// fmt.Println("=", node, push, reflect.TypeOf(node))
+		fmt.Println("=", node, push, reflect.TypeOf(node))
 		scope, hasScope := pass.TypesInfo.Scopes[node]
 		if hasScope {
 			currentScope = scope
@@ -114,8 +122,34 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			t := pass.TypesInfo.TypeOf(arg)
 			isPtr := isPointer(t)
 			fmt.Println("arg isPtr?", isPtr)
-			continue
 			if ident, ok := arg.(*ast.Ident); ok {
+				o := pass.TypesInfo.ObjectOf(ident)
+				fmt.Println("ident is object of", o)
+				fmt.Println("   ", o.Parent())
+				fmt.Println("decl", ident.Obj.Decl, reflect.TypeOf(ident.Obj.Decl))
+				if decl, ok := ident.Obj.Decl.(*ast.Field); ok {
+					fmt.Println("pos", decl.Pos())
+					// pass.TypesInfo.ObjectOf(decl)
+
+					from := scope2Node(o.Parent())
+					if from != nil {
+						fmt.Println("from   ", (from), reflect.TypeOf(from))
+						// from.(*ast.FuncType)
+						if fxn, ok := from.(*ast.FuncType); ok {
+							for _, item := range fxn.Params.List {
+								fmt.Println("item", item, reflect.TypeOf(item))
+								for i, name := range item.Names {
+									fmt.Println("name", name, reflect.TypeOf(name))
+									if name.Name == decl.Names[0].Name {
+										fmt.Println("name is taint", i, name)
+									}
+								}
+							}
+							fmt.Println("params", fxn.Params.NumFields())
+						}
+					}
+				}
+				continue
 				fmt.Println("ident name", ident.Name)
 				fmt.Println("ident obj", ident.Obj)
 				fmt.Println("ident obj kind", ident.Obj.Kind, reflect.TypeOf(ident.Obj.Kind))

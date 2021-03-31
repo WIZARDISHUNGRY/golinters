@@ -68,11 +68,6 @@ func Pass_UnmarshalMap_CreatePointer() error {
 	return json.Unmarshal([]byte(data), myDst)
 }
 
-func Pass_UnmarshalMap_TypeAlias() error {
-	myDst := myAlias(dst)
-	return json.Unmarshal([]byte(data), myDst)
-}
-
 func Fail_UnmarshalMap_TypeAlias() error {
 	myDst := myAlias(dst)
 	return json.Unmarshal([]byte(data), myDst)
@@ -122,4 +117,11 @@ func Pass_UnmarshalMap_FancyDst() error {
 
 func Fail_UnmarshalMap_FancyDst() error {
 	return json.Unmarshal([]byte(data), myFancyDst.dst)
+}
+
+func Fail_UnmarshalMap_Indirect() error {
+	e := func(myDst interface{}) error {
+		return json.Unmarshal([]byte(data), myDst)
+	}
+	return e(dst)
 }
