@@ -1,0 +1,2 @@
+# golinters
+my go linters
