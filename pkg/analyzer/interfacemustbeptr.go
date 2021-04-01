@@ -90,14 +90,20 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			return true
 		}
 
-		// fmt.Println("__", callExpr, callExpr.Fun, reflect.TypeOf(callExpr.Fun))
+		fmt.Println("call__", callExpr, callExpr.Fun, reflect.TypeOf(callExpr.Fun))
 
 		selector, ok := callExpr.Fun.(*ast.SelectorExpr)
-		if !ok {
+		if ok {
+			goto OK
+		} else if ident, ok := callExpr.Fun.(*ast.Ident); ok {
+			fmt.Println("Ident call", ident)
+			return true
+		} else {
 			return true
 		}
+	OK:
 
-		// fmt.Println("selector name", selector.Sel.Name)
+		fmt.Println("selector name", selector.Sel.Name)
 		x := selector.X.(*ast.Ident)
 		// TODO handle methods x.Obj :)
 		// fmt.Println("x", x, reflect.TypeOf(x))
@@ -149,7 +155,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 						}
 					}
 				}
-				continue
+
 				fmt.Println("ident name", ident.Name)
 				fmt.Println("ident obj", ident.Obj)
 				fmt.Println("ident obj kind", ident.Obj.Kind, reflect.TypeOf(ident.Obj.Kind))
@@ -162,7 +168,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 					fmt.Println("LookupParent is nil") // error
 				} else {
 					isPtr := isPointer(obj.Type())
-					fmt.Println("obj isPtr?", isPtr)
+					pass.TypesInfo.Types[nil].IsValue()
+					fmt.Println("obj isPtr?", isPtr, obj.Type())
 				}
 			} else if callExpr, ok := arg.(*ast.CallExpr); ok {
 				fmt.Println("callExpr", callExpr)

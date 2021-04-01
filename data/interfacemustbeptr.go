@@ -4,6 +4,7 @@ package testdata
 
 import (
 	"encoding/json"
+	"fmt"
 
 	jason "encoding/json"
 )
@@ -124,4 +125,20 @@ func Fail_UnmarshalMap_Indirect() error {
 		return json.Unmarshal([]byte(data), myDst)
 	}
 	return e(dst)
+}
+
+func indirect(myDst interface{}) error {
+	return json.Unmarshal([]byte(data), myDst)
+}
+
+func Fail_UnmarshalMap_Indirect2(y string) error {
+	var x string
+	fmt.Println(x)
+	return indirect(dst)
+}
+
+func Pass_UnmarshalMap_Indirect2(y string) error {
+	var x string
+	fmt.Println(x)
+	return indirect(&dst)
 }
